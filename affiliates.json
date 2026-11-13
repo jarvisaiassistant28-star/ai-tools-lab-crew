@@ -1,0 +1,47 @@
+{
+  "tools": {
+    "cursor": {
+      "name": "Cursor AI Code Editor",
+      "category": "Coding & Productivity",
+      "affiliate_url": "https://cursor.com/?ref=aitoolslab",
+      "commission_rate": "Free tier + Pro referral",
+      "tagline": "The AI-first code editor that builds software 10x faster"
+    },
+    "elevenlabs": {
+      "name": "ElevenLabs Neural Voice",
+      "category": "Voice & Audio AI",
+      "affiliate_url": "https://elevenlabs.io/?from=aitoolslab",
+      "commission_rate": "22% recurring monthly",
+      "tagline": "The most realistic AI voice generator and text-to-speech platform"
+    },
+    "make": {
+      "name": "Make.com (Integromat)",
+      "category": "Automation & Workflows",
+      "affiliate_url": "https://www.make.com/en/register?pc=aitoolslab",
+      "commission_rate": "20% lifetime recurring",
+      "tagline": "Design, build and automate anything with no-code workflows"
+    },
+    "freepik": {
+      "name": "Freepik AI Suite & Pikaso",
+      "category": "Image & Design AI",
+      "affiliate_url": "https://freepik.com/?ref=aitoolslab",
+      "commission_rate": "15% per subscription",
+      "tagline": "Free AI image generator, sketch-to-image and mockups"
+    },
+    "descript": {
+      "name": "Descript AI Video Editor",
+      "category": "Video Editing & Podcasting",
+      "affiliate_url": "https://get.descript.com/aitoolslab",
+      "commission_rate": "15% recurring",
+      "tagline": "Edit video and podcasts as easily as a Word document"
+    },
+    "gemini": {
+      "name": "Google Gemini & AI Studio",
+      "category": "LLM & Automation",
+      "affiliate_url": "https://aistudio.google.com/",
+      "commission_rate": "100% Free Developer Tier",
+      "tagline": "Build AI apps for zero dollars with million-token context windows"
+    }
+  },
+  "default_disclaimer": "⚠️ Affiliate Disclosure: Some links in this description are affiliate links. If you purchase through them, AI Tools Lab earns a small commission at zero extra cost to you. We only recommend tools we personally test and verify."
+}

@@ -1,0 +1,13 @@
+{
+  "status": "ready_for_render",
+  "audio_narration": "samples/sample_voiceover.txt",
+  "visual_sequence": [
+    "samples/screen_captures/google_ai_studio_ui.png",
+    "samples/screen_captures/hugging_face_spaces_ui.png",
+    "samples/screen_captures/cursor_ai_editor_ui.png"
+  ],
+  "audio_layering": "Edge-TTS (100% volume) + Ambient Synth Bed (-22dB ducking)",
+  "resolution": "1920x1080 60fps",
+  "branding": "AI Tools Lab Watermark + Dynamic Tool Badges",
+  "command": "ffmpeg -loop 1 -i samples/screen_captures/google_ai_studio_ui.png -i samples/sample_voiceover.txt -c:v libx264 -c:a aac -shortest samples/final_video.mp4"
+}

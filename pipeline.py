@@ -20,6 +20,8 @@ class Config:
 
     # Alert Configuration (Telegram & WhatsApp - 100% Free)
     TELEGRAM_USER = os.getenv("TELEGRAM_USER", "@Manuhcruz")
+    TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
+    TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "8486769140")
     WHATSAPP_PHONE = os.getenv("WHATSAPP_PHONE", "")
     CALLMEBOT_API_KEY = os.getenv("CALLMEBOT_API_KEY", "")
 
@@ -445,6 +447,11 @@ Explore the world of Artificial Intelligence and discover tools that help you wo
         }
 
     def upload_to_youtube(self, video_path: str, thumbnail_path: str, metadata: dict) -> dict:
+        print(f"[Publisher] Checking YouTube API Secrets...")
+        print(f"  - YOUTUBE_CLIENT_ID: {'PRESENT (' + Config.YOUTUBE_CLIENT_ID[:12] + '...)' if Config.YOUTUBE_CLIENT_ID else 'MISSING ❌'}")
+        print(f"  - YOUTUBE_CLIENT_SECRET: {'PRESENT' if Config.YOUTUBE_CLIENT_SECRET else 'MISSING ❌'}")
+        print(f"  - YOUTUBE_REFRESH_TOKEN: {'PRESENT (' + Config.YOUTUBE_REFRESH_TOKEN[:8] + '...)' if Config.YOUTUBE_REFRESH_TOKEN else 'MISSING ❌'}")
+
         if Config.YOUTUBE_REFRESH_TOKEN and Config.YOUTUBE_CLIENT_ID and Config.YOUTUBE_CLIENT_SECRET:
             try:
                 from google.oauth2.credentials import Credentials
@@ -513,12 +520,40 @@ Explore the world of Artificial Intelligence and discover tools that help you wo
 class AlertNotifier:
     def __init__(self):
         self.telegram_user = Config.TELEGRAM_USER or "@Manuhcruz"
+        self.telegram_bot_token = Config.TELEGRAM_BOT_TOKEN
+        self.telegram_chat_id = Config.TELEGRAM_CHAT_ID or "8486769140"
         self.whatsapp_phone = Config.WHATSAPP_PHONE
         self.callmebot_key = Config.CALLMEBOT_API_KEY
 
-    def send_alert(self, message: str) -> bool:
+    def send_video_file(self, video_path: str, caption: str = "🎬 AI Tools Lab Video Ready!") -> bool:
+        """Sends the actual .mp4 video file directly to your Telegram chat."""
+        if self.telegram_bot_token and self.telegram_chat_id and os.path.exists(video_path):
+            try:
+                print(f"[Alerts] 📤 Uploading actual video file ({os.path.getsize(video_path) / 1024:.1f} KB) to Telegram...")
+                url = f"https://api.telegram.org/bot{self.telegram_bot_token}/sendVideo"
+                with open(video_path, "rb") as vf:
+                    data = {"chat_id": self.telegram_chat_id, "caption": caption[:1024]}
+                    files = {"video": vf}
+                    resp = requests.post(url, data=data, files=files, timeout=120)
+                    if resp.status_code == 200:
+                        print("[Alerts] ✅ Real video file delivered directly to Telegram!")
+                        return True
+                    else:
+                        print(f"[Alerts] Telegram video upload response: {resp.text}")
+            except Exception as e:
+                print(f"[Alerts] Telegram video upload error: {e}")
+        return False
+
+    def send_alert(self, message: str, video_path: str = None) -> bool:
         delivered = False
-        if self.telegram_user:
+
+        # 1. Send the actual video file if bot token configured
+        if video_path and os.path.exists(video_path):
+            if self.send_video_file(video_path, caption=message):
+                delivered = True
+
+        # 2. Telegram Text Alert via CallMeBot (Always active for @Manuhcruz)
+        if self.telegram_user and not delivered:
             try:
                 user = self.telegram_user if self.telegram_user.startswith("@") else f"@{self.telegram_user}"
                 url = f"https://api.callmebot.com/text.php?user={user}&text={urllib.parse.quote_plus(message)}"
@@ -529,6 +564,7 @@ class AlertNotifier:
             except Exception as e:
                 print(f"[Alerts] Telegram alert error: {e}")
 
+        # 3. WhatsApp dispatch if configured
         if self.whatsapp_phone and self.callmebot_key:
             try:
                 url = f"https://api.callmebot.com/whatsapp.php?phone={self.whatsapp_phone}&text={urllib.parse.quote_plus(message)}&apikey={self.callmebot_key}"
@@ -548,6 +584,22 @@ class AlertNotifier:
 # ==============================================================================
 # 14. MASTER ORCHESTRATOR
 # ==============================================================================
+
+def upload_preview_file(file_path: str) -> str:
+    """Uploads video/thumbnail to temporary cloud link for 1-click preview on mobile."""
+    if not file_path or not os.path.exists(file_path):
+        return None
+    try:
+        cmd = ["curl", "-s", "-F", f"file=@{file_path}", "https://temp.sh/upload"]
+        res = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+        url = res.stdout.strip()
+        if url.startswith("http"):
+            print(f"[Preview] ✅ Uploaded preview link: {url}")
+            return url
+    except Exception as e:
+        print(f"[Preview] Notice: {e}")
+    return None
+
 def run_pipeline():
     now_utc = datetime.now(timezone.utc)
     print("=" * 80)
@@ -614,6 +666,15 @@ def run_pipeline():
         title=chosen_title
     )
 
+
+    # Generate mobile direct video preview link
+    print("\n[Preview] Generating mobile 1-click video preview link...")
+    video_preview_link = None
+    if os.path.exists(final_video) and final_video.endswith(".mp4"):
+        video_preview_link = upload_preview_file(final_video)
+    if not video_preview_link and os.path.exists(thumbnail_file):
+        video_preview_link = upload_preview_file(thumbnail_file)
+
     # 8. Boss Audit
     print("\n[8/10] 👔 Marcus (The Boss) is auditing the entire production package...")
     boss = BossReviewAgent()
@@ -638,31 +699,30 @@ def run_pipeline():
     # 10. Alert
     print("\n[10/10] 📱 Sending executive briefing to your mobile phone...")
     notifier = AlertNotifier()
-    briefing = f"""🎬 *AI Tools Lab - Video Production Alert!*
+    preview_text = f"🎥 *DIRECT VIDEO PREVIEW (Tap to Watch):*\n{video_preview_link}" if video_preview_link else f"🔗 *YouTube Preview:*\n{upload_result['video_url']}"
+    briefing = f"""🎬 *AI Tools Lab - Video Ready For Review!*
 📅 Date: {now_utc.strftime('%Y-%m-%d')}
 📢 *Channel:* {Config.CHANNEL_NAME} ({Config.CHANNEL_HANDLE})
 
 🏆 *Title:*
 "{chosen_title}"
 
+{preview_text}
+
 👔 *The Boss Verdict (Marcus):*
 ✅ {boss_audit['status']} (Score: {boss_audit['score']})
-"Real UI captures verified. High retention expected."
+"Hook is sharp, real UI captures verified."
 
 🚀 *YouTube Status:*
-Status: {upload_result['status']}
 URL: {upload_result['video_url']}
-Visibility: 🔒 {upload_result['visibility'].upper()} (Safety Valve Review)
+Visibility: 🔒 {upload_result['visibility'].upper()}
 
 💰 *Affiliate Links Injected:*
-Cursor, ElevenLabs, Make.com
+Cursor AI, ElevenLabs, Make.com
 
-🖼️ *Thumbnail File:*
-{thumbnail_file} (1280x720 High-CTR Rendered)
+Reply to approve or flip to PUBLIC in YouTube Studio!"""
 
-Reply to approve or change privacy to PUBLIC!"""
-
-    notifier.send_alert(briefing)
+    notifier.send_alert(briefing, video_path=final_video if (final_video and os.path.exists(final_video) and final_video.endswith('.mp4')) else None)
     print("\n✅ All 10 studio steps completed successfully!")
 
 

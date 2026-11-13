@@ -10,4 +10,5 @@ Second is Hugging Face Spaces. It gives you thousands of open-source video, imag
 [SCENE 4: CURSOR AI EDITOR]
 Third is Cursor. It's an AI-native coding environment that builds full automations directly from plain English prompts.
 
-[SCENE 5: OUTRO & C
+[SCENE 5: OUTRO & CTA]
+All links are pinned in the comments below. Subscribe to AI Tools Lab for daily free workflow tutorials!

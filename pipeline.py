@@ -255,6 +255,63 @@ class RealVideoBrollEngine:
 
         return downloaded
 
+
+# ==============================================================================
+# 5b. BROWSER RECORDER AGENT (PLAYWRIGHT SCREEN CAPTURES)
+# ==============================================================================
+class BrowserRecorderAgent:
+    """
+    Captures REAL live website screenshots and UI walkthroughs of the featured AI tools.
+    """
+    def __init__(self, output_dir: str = "samples/screen_captures"):
+        self.output_dir = output_dir
+        os.makedirs(self.output_dir, exist_ok=True)
+
+    async def capture_tool_async(self, url: str, tool_name: str, width: int = 1080, height: int = 1920) -> str:
+        safe_name = tool_name.lower().replace(" ", "_").replace(".", "_")
+        screenshot_path = os.path.join(self.output_dir, f"{safe_name}_ui.png")
+        try:
+            from playwright.async_api import async_playwright
+            async with async_playwright() as p:
+                browser = await p.chromium.launch(headless=True, args=["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"])
+                page = await browser.new_page(viewport={"width": width, "height": height})
+                print(f"[BrowserRecorder] 🌐 Navigating to {url} ({width}x{height})...")
+                await page.goto(url, wait_until="load", timeout=20000)
+                await page.evaluate("""() => {
+                    const selectors = ['#cookie-banner', '.cookie-consent', '[aria-label*="cookie"]', '.fc-consent-root', '#onetrust-consent-sdk'];
+                    selectors.forEach(s => document.querySelectorAll(s).forEach(el => el.remove()));
+                }""")
+                await asyncio.sleep(1)
+                await page.screenshot(path=screenshot_path)
+                await browser.close()
+                print(f"[BrowserRecorder] ✅ Captured real UI for {tool_name}: {screenshot_path}")
+                return screenshot_path
+        except Exception as e:
+            print(f"[BrowserRecorder] Notice for {tool_name}: {e}. Creating branded fallback...")
+            return self._generate_fallback(tool_name, screenshot_path, width, height)
+
+    def _generate_fallback(self, tool_name: str, path: str, width: int, height: int) -> str:
+        try:
+            from PIL import Image, ImageDraw, ImageFont
+            img = Image.new("RGB", (width, height), color="#0b1120")
+            draw = ImageDraw.Draw(img)
+            draw.rectangle([0, 0, width, int(height * 0.04)], fill="#1e293b")
+            card_w, card_h = int(width * 0.88), int(height * 0.6)
+            cx, cy = (width - card_w) // 2, (height - card_h) // 2
+            draw.rounded_rectangle([cx, cy, cx + card_w, cy + card_h], radius=16, fill="#111827", outline="#38bdf8", width=2)
+            try:
+                font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", int(width * 0.05))
+            except Exception:
+                font = ImageFont.load_default()
+            draw.text((cx + 30, cy + 60), f"⚡ {tool_name.upper()}", font=font, fill="#38bdf8")
+            img.save(path, "PNG")
+        except Exception:
+            pass
+        return path
+
+    def capture(self, url: str, tool_name: str, width: int = 1080, height: int = 1920) -> str:
+        return asyncio.run(self.capture_tool_async(url, tool_name, width, height))
+
 class VisualDirectorAgent:
     """
     Kills the frozen single-screenshot slop.
@@ -346,7 +403,8 @@ class VoiceoverAgent:
             clean_text = re.sub(r'\[.*?\]', '', text)
             clean_text = re.sub(r'#+\s.*', '', clean_text)
             clean_text = re.sub(r'\*\*.*?\*\*', '', clean_text).strip()
-            communicate = edge_tts.Communicate(clean_text, self.voice)
+            # Apply high-retention creator pacing (+12% rate boost)
+            communicate = edge_tts.Communicate(clean_text, self.voice, rate="+12%")
             await communicate.save(output_path)
             print(f"[Voiceover] ✅ Studio narration synthesized: {output_path}")
             return True, output_path
@@ -430,13 +488,18 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 # ==============================================================================
 # 8. LEO: THE MULTI-SCENE COMPILER & CONCAT TIMELINE ENGINE
 # ==============================================================================
+# ==============================================================================
+# 8. LEO: THE MULTI-SCENE COMPILER & CONCAT TIMELINE ENGINE
+# ==============================================================================
 class MultiSceneTimelineEngine:
     """
     Leo (Multi-Scene Engine):
-    - Stitches REAL 60fps / 30fps moving MP4 video clips together with 3.5s cuts.
-    - Crops & scales perfectly to 1080x1920 (Shorts) or 1920x1080 (Long-form).
-    - Burns kinetic Alex Hormozi / CapCut-style .ass word-by-word highlighted captions.
-    - Mixes Edge-TTS studio narration with -22dB ambient background audio bed.
+    - Interlaces REAL Pixabay motion B-roll clips with REAL website UI screen captures.
+    - Applies smooth camera pans/zooms over real website screenshots so they are never frozen slides.
+    - Slices cuts every 3.0 seconds.
+    - Loops through the playlist until the FULL audio track duration is covered.
+    - Burns kinetic word-by-word highlighted captions (.ass).
+    - Mixes voiceover + ambient background sound bed.
     """
     def __init__(self):
         self.name = "Leo (Multi-Scene Timeline Engine)"
@@ -444,6 +507,7 @@ class MultiSceneTimelineEngine:
     def compile_video(
         self,
         video_clips: list,
+        browser_captures: list,
         scene_visuals: list,
         audio_path: str,
         script_text: str,
@@ -452,6 +516,7 @@ class MultiSceneTimelineEngine:
         output_mp4: str = "samples/final_video.mp4"
     ) -> str:
         os.makedirs(os.path.dirname(output_mp4), exist_ok=True)
+        os.makedirs("samples/broll", exist_ok=True)
 
         # 1. Accurately measure audio duration using ffprobe
         duration = 45.0
@@ -462,17 +527,23 @@ class MultiSceneTimelineEngine:
                 measured = float(p_res.stdout.strip())
                 if measured > 5.0:
                     duration = measured
-                    print(f"[MultiSceneEngine] ⏱️ Real audio duration measured: {duration:.2f}s")
+                    print(f"[MultiSceneEngine] ⏱️ Real audio duration: {duration:.2f}s")
             except Exception as pe:
                 size = os.path.getsize(audio_path)
                 duration = max(35.0, size / 16000.0)
-                print(f"[MultiSceneEngine] ⏱️ Estimated audio duration from file size: {duration:.2f}s")
+                print(f"[MultiSceneEngine] ⏱️ Estimated audio duration: {duration:.2f}s")
 
-        # 2. Build multi-clip visual sequence
-        # Prioritize real MP4 motion clips, fallback to high-res cards if needed
-        all_visuals = video_clips if (video_clips and len(video_clips) >= 2) else scene_visuals
-        if not all_visuals:
-            all_visuals = scene_visuals
+        # 2. Interlace Real Motion Clips with Real Browser UI Captures
+        playlist_assets = []
+        max_len = max(len(video_clips or []), len(browser_captures or []))
+        for i in range(max_len):
+            if video_clips and i < len(video_clips):
+                playlist_assets.append(video_clips[i])
+            if browser_captures and i < len(browser_captures):
+                playlist_assets.append(browser_captures[i])
+
+        if len(playlist_assets) < 3 and scene_visuals:
+            playlist_assets.extend(scene_visuals)
 
         # 3. Generate Kinetic Subtitles
         subtitle_file = KineticSubtitleGenerator.generate_ass(
@@ -483,100 +554,74 @@ class MultiSceneTimelineEngine:
             output_path="samples/kinetic_subtitles.ass"
         )
 
-        # 4. If we have real MP4 video clips, process and concatenate them!
-        if video_clips and len(video_clips) >= 2:
-            print(f"[MultiSceneEngine] 🎬 Compiling {len(video_clips)} REAL MP4 motion clips into {width}x{height} timeline...")
-            processed_clips = []
-            clip_dur = max(2.5, min(4.5, duration / len(video_clips)))
+        # 4. Process all visual assets into 30fps standardized parts
+        print(f"[MultiSceneEngine] 🎬 Processing {len(playlist_assets)} interlaced assets (Motion Clips + Real Website UIs)...")
+        processed_clips = []
+        clip_dur = 3.0
 
-            for idx, raw_clip in enumerate(video_clips):
-                out_part = f"samples/broll/part_{idx+1}.mp4"
-                # Scale, crop to fill aspect ratio, set 30fps
-                scale_filter = f"scale={width}:{height}:force_original_aspect_ratio=increase,crop={width}:{height},fps=30"
+        for idx, asset in enumerate(playlist_assets):
+            out_part = f"samples/broll/part_{idx+1}.mp4"
+            if asset.endswith(".mp4"):
+                vf = f"scale={width}:{height}:force_original_aspect_ratio=increase,crop={width}:{height},fps=30"
                 part_cmd = [
                     "ffmpeg", "-y",
                     "-ss", "0", "-t", f"{clip_dur:.2f}",
-                    "-i", raw_clip,
-                    "-vf", scale_filter,
+                    "-i", asset,
+                    "-vf", vf,
                     "-c:v", "libx264", "-an",
                     "-pix_fmt", "yuv420p",
                     out_part
                 ]
-                try:
-                    subprocess.run(part_cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                    if os.path.exists(out_part) and os.path.getsize(out_part) > 10000:
-                        processed_clips.append(out_part)
-                except Exception as pe:
-                    print(f"[MultiSceneEngine] Notice processing clip {raw_clip}: {pe}")
-
-            if processed_clips:
-                concat_list_file = "samples/broll/concat_clips.txt"
-                # Loop through clips until they cover the FULL audio duration
-                total_video_time = 0.0
-                with open(concat_list_file, "w") as f:
-                    while total_video_time < (duration + 2.0):
-                        for pc in processed_clips:
-                            f.write(f"file '{os.path.abspath(pc)}'\n")
-                            total_video_time += clip_dur
-
-                # Final assembly with audio & subtitles
-                sub_filter = f"subtitles={subtitle_file}" if os.path.exists(subtitle_file) else "null"
-                final_cmd = [
+            else:
+                vf = f"scale={width}:{height}:force_original_aspect_ratio=increase,crop={width}:{height},zoompan=z='min(zoom+0.0012,1.06)':d=90:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s={width}x{height},fps=30"
+                part_cmd = [
                     "ffmpeg", "-y",
-                    "-f", "concat", "-safe", "0", "-i", concat_list_file,
-                    "-i", audio_path,
-                    "-f", "lavfi", "-i", "anoisesrc=d=600:c=pink:r=44100:a=0.012",
-                    "-filter_complex",
-                    f"[0:v]{sub_filter}[v];"
-                    "[1:a][2:a]amix=inputs=2:duration=first:dropout_transition=2[a]",
-                    "-map", "[v]", "-map", "[a]",
-                    "-c:v", "libx264", "-c:a", "aac", "-b:a", "192k",
-                    "-pix_fmt", "yuv420p", "-shortest",
-                    output_mp4
+                    "-loop", "1", "-t", f"{clip_dur:.2f}",
+                    "-i", asset,
+                    "-vf", vf,
+                    "-c:v", "libx264", "-an",
+                    "-pix_fmt", "yuv420p",
+                    out_part
                 ]
-                try:
-                    subprocess.run(final_cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                    print(f"[MultiSceneEngine] ✅ BROADCAST-QUALITY REAL VIDEO COMPILED: {output_mp4}")
-                    return output_mp4
-                except Exception as fe:
-                    print(f"[MultiSceneEngine] Real video assembly fallback: {fe}")
 
-        # Fallback to image-based multi-scene sequence if video clips could not be downloaded
-        concat_file = "samples/scenes/concat_list.txt"
-        sec_per_cut = 3.5
-        repeat_count = int(duration // (len(all_visuals) * sec_per_cut)) + 2
+            try:
+                subprocess.run(part_cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                if os.path.exists(out_part) and os.path.getsize(out_part) > 10000:
+                    processed_clips.append(out_part)
+            except Exception as pe:
+                print(f"[MultiSceneEngine] Notice processing asset {asset}: {pe}")
 
-        with open(concat_file, "w") as f:
-            for _ in range(repeat_count):
-                for v in all_visuals:
-                    abs_v = os.path.abspath(v)
-                    f.write(f"file '{abs_v}'\n")
-                    f.write(f"duration {sec_per_cut}\n")
-            if all_visuals:
-                f.write(f"file '{os.path.abspath(all_visuals[0])}'\n")
+        if processed_clips:
+            concat_list_file = "samples/broll/concat_clips.txt"
+            total_video_time = 0.0
+            with open(concat_list_file, "w") as f:
+                while total_video_time < (duration + 1.5):
+                    for pc in processed_clips:
+                        f.write(f"file '{os.path.abspath(pc)}'\n")
+                        total_video_time += clip_dur
 
-        sub_filter = f",subtitles={subtitle_file}" if os.path.exists(subtitle_file) else ""
-        cmd = [
-            "ffmpeg", "-y",
-            "-f", "concat", "-safe", "0", "-i", concat_file,
-            "-i", audio_path,
-            "-f", "lavfi", "-i", "anoisesrc=d=600:c=pink:r=44100:a=0.012",
-            "-filter_complex",
-            f"[0:v]scale={width}:{height},setsar=1{sub_filter}[v];"
-            "[1:a][2:a]amix=inputs=2:duration=first:dropout_transition=2[a]",
-            "-map", "[v]", "-map", "[a]",
-            "-c:v", "libx264", "-tune", "stillimage",
-            "-c:a", "aac", "-b:a", "192k",
-            "-pix_fmt", "yuv420p", "-shortest",
-            output_mp4
-        ]
-        try:
-            subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            print(f"[MultiSceneEngine] ✅ Video Compiled: {output_mp4}")
-            return output_mp4
-        except Exception as e:
-            print(f"[MultiSceneEngine] Render note: {e}")
-            return output_mp4
+            sub_filter = f"subtitles={subtitle_file}" if os.path.exists(subtitle_file) else "null"
+            final_cmd = [
+                "ffmpeg", "-y",
+                "-f", "concat", "-safe", "0", "-i", concat_list_file,
+                "-i", audio_path,
+                "-f", "lavfi", "-i", "anoisesrc=d=600:c=pink:r=44100:a=0.012",
+                "-filter_complex",
+                f"[0:v]{sub_filter}[v];"
+                "[1:a]volume=1.25[a_voice];[2:a]volume=0.08[a_bg];[a_voice][a_bg]amix=inputs=2:duration=first:dropout_transition=2,loudnorm[a]",
+                "-map", "[v]", "-map", "[a]",
+                "-c:v", "libx264", "-c:a", "aac", "-b:a", "192k",
+                "-pix_fmt", "yuv420p", "-shortest",
+                output_mp4
+            ]
+            try:
+                subprocess.run(final_cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                print(f"[MultiSceneEngine] ✅ BROADCAST-QUALITY REAL VIDEO COMPILED: {output_mp4}")
+                return output_mp4
+            except Exception as fe:
+                print(f"[MultiSceneEngine] Concat render notice: {fe}")
+
+        return output_mp4
 
 class ThumbnailGeneratorAgent:
     def __init__(self):
@@ -887,11 +932,24 @@ def run_pipeline():
     script_data = sam.write_script(plan)
     chosen_title = plan.get("title")
 
-    # 3. Real Motion B-Roll & Multi-Angle Visual Director
+    # 3. Real Motion B-Roll (Pixabay) & Live Website Screen Captures (Playwright)
     print(f"\n[3/9] 🎥 Fetching real 1080p motion video clips from Pixabay...")
     broll_engine = RealVideoBrollEngine()
     video_keywords = ["technology code", "artificial intelligence", "data center servers", "cyberpunk computer", "futuristic tech"]
     real_clips = broll_engine.fetch_video_clips(video_keywords, is_portrait=(plan.get("format") == "SHORTS"), count=5)
+
+    print(f"\n[3b/9] 🌐 Capturing REAL live website screenshots of featured AI tools...")
+    recorder = BrowserRecorderAgent()
+    featured_tools = [
+        ("https://aistudio.google.com/", "Google AI Studio"),
+        ("https://huggingface.co/spaces", "Hugging Face Spaces"),
+        ("https://cursor.com/", "Cursor AI Editor")
+    ]
+    tool_captures = []
+    for url, tname in featured_tools:
+        cap = recorder.capture(url, tname, width=plan.get("width"), height=plan.get("height"))
+        if cap and os.path.exists(cap):
+            tool_captures.append(cap)
 
     director = VisualDirectorAgent()
     scenes = director.create_scene_visuals(width=plan.get("width"), height=plan.get("height"))
@@ -917,6 +975,7 @@ def run_pipeline():
     compiler = MultiSceneTimelineEngine()
     final_video = compiler.compile_video(
         video_clips=real_clips,
+        browser_captures=tool_captures,
         scene_visuals=scenes,
         audio_path=voice_file if os.path.exists(voice_file) else "samples/sample_voiceover.txt",
         script_text=script_data["full_script"],

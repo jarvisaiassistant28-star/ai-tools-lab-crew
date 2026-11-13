@@ -1,0 +1,36 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,DejaVu Sans,70,&H00FFFFFF,&H000000FF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,6,3,2,30,30,672,1
+Style: Highlight,DejaVu Sans,75,&H0000FFFF,&H000000FF,&H00000000,&H80000000,-1,0,0,0,105,105,0,0,1,8,4,2,30,30,672,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:01.12,Highlight,,0,0,0,,{\c&H00FFFF&}STOP PAYING FOR CHATGPT
+Dialogue: 0,0:00:01.12,0:00:02.24,Highlight,,0,0,0,,{\c&H00FFFF&}AND EXPENSIVE AI TOOLS!
+Dialogue: 0,0:00:02.24,0:00:03.36,Highlight,,0,0,0,,{\c&H00FFFF&}HERE ARE 3 HIDDEN
+Dialogue: 0,0:00:03.36,0:00:04.48,Highlight,,0,0,0,,{\c&H00FFFF&}GEMS THAT ARE 100%
+Dialogue: 0,0:00:04.48,0:00:05.60,Highlight,,0,0,0,,{\c&H00FFFF&}FREE RIGHT NOW. FIRST
+Dialogue: 0,0:00:05.60,0:00:06.72,Highlight,,0,0,0,,{\c&H00FFFF&}IS GOOGLE AI STUDIO.
+Dialogue: 0,0:00:06.72,0:00:07.84,Highlight,,0,0,0,,{\c&H00FFFF&}YOU GET DIRECT ACCESS
+Dialogue: 0,0:00:07.84,0:00:08.96,Highlight,,0,0,0,,{\c&H00FFFF&}TO GEMINI WITH A
+Dialogue: 0,0:00:08.96,0:00:10.08,Highlight,,0,0,0,,{\c&H00FFFF&}MILLION TOKEN CONTEXT WINDOW
+Dialogue: 0,0:00:10.08,0:00:11.20,Highlight,,0,0,0,,{\c&H00FFFF&}WITHOUT PAYING A DIME.
+Dialogue: 0,0:00:11.20,0:00:12.32,Highlight,,0,0,0,,{\c&H00FFFF&}SECOND IS HUGGING FACE
+Dialogue: 0,0:00:12.32,0:00:13.44,Highlight,,0,0,0,,{\c&H00FFFF&}SPACES. IT GIVES YOU
+Dialogue: 0,0:00:13.44,0:00:14.56,Highlight,,0,0,0,,{\c&H00FFFF&}THOUSANDS OF OPEN-SOURCE VIDEO,
+Dialogue: 0,0:00:14.56,0:00:15.00,Highlight,,0,0,0,,{\c&H00FFFF&}IMAGE, AND VOICE MODELS
+Dialogue: 0,0:00:15.68,0:00:15.00,Highlight,,0,0,0,,{\c&H00FFFF&}RUNNING LIVE FOR ZERO
+Dialogue: 0,0:00:16.80,0:00:15.00,Highlight,,0,0,0,,{\c&H00FFFF&}DOLLARS. THIRD IS CURSOR.
+Dialogue: 0,0:00:17.92,0:00:15.00,Highlight,,0,0,0,,{\c&H00FFFF&}IT'S AN AI-NATIVE CODING
+Dialogue: 0,0:00:19.04,0:00:15.00,Highlight,,0,0,0,,{\c&H00FFFF&}ENVIRONMENT THAT BUILDS FULL
+Dialogue: 0,0:00:20.16,0:00:15.00,Highlight,,0,0,0,,{\c&H00FFFF&}AUTOMATIONS DIRECTLY FROM PLAIN
+Dialogue: 0,0:00:21.28,0:00:15.00,Highlight,,0,0,0,,{\c&H00FFFF&}ENGLISH PROMPTS. ALL LINKS
+Dialogue: 0,0:00:22.40,0:00:15.00,Highlight,,0,0,0,,{\c&H00FFFF&}ARE PINNED IN THE
+Dialogue: 0,0:00:23.52,0:00:15.00,Highlight,,0,0,0,,{\c&H00FFFF&}COMMENTS BELOW. SUBSCRIBE TO
+Dialogue: 0,0:00:24.64,0:00:15.00,Highlight,,0,0,0,,{\c&H00FFFF&}AI TOOLS LAB FOR
+Dialogue: 0,0:00:25.76,0:00:15.00,Highlight,,0,0,0,,{\c&H00FFFF&}DAILY FREE WORKFLOW TUTORIALS!

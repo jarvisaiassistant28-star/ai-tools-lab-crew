@@ -37,6 +37,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           WHATSAPP_PHONE: ${{ secrets.WHATSAPP_PHONE }}
+          PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
           CALLMEBOT_API_KEY: ${{ secrets.CALLMEBOT_API_KEY }}
           TELEGRAM_USER: ${{ secrets.TELEGRAM_USER || '@Manuhcruz' }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}

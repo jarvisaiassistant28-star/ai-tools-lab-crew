@@ -1,6 +1,9 @@
 {
   "status": "ready_for_render",
-  "visual": "samples/screen_captures/google_ai_studio_ui.png",
-  "audio": "samples/sample_voiceover.txt",
-  "title": "5 Insane Free AI Tools You Didn't Know Existed in 2026"
+  "format": "9:16 Shorts",
+  "resolution": "1080x1920",
+  "cut_interval_sec": 3.5,
+  "scenes_count": 6,
+  "audio_track": "samples/sample_voiceover.txt",
+  "subtitle_file": "samples/kinetic_subtitles.ass"
 }

@@ -1,8 +1,13 @@
-# 🎬 Full Retention Script: 5 Insane Free AI Tools You Didn't Know Existed in 2026
-**Channel:** AI Tools Lab | **Target Retention:** >65%
+[SCENE 1: THE HOOK]
+Stop paying for ChatGPT and expensive AI tools! Here are 3 hidden gems that are 100% free right now.
 
-### [0:00 - 0:15] THE 10-SECOND HOOK
-[VISUAL: Fast-paced dark room montage: computer terminal executing tasks, phone lighting up with alert, $0 statement.]
-[SFX: Digital whoosh + deep bass pulse]
-NARRATOR:
-Right now, while you are watching this, thousands of creators are wasting hundreds of dollars every month on paid AI subscriptions. But what if I told you that 5 completely free tools hidden in plain sight can do the exact same work for literally zero doll
+[SCENE 2: GOOGLE AI STUDIO]
+First is Google AI Studio. You get direct access to Gemini with a million token context window without paying a dime.
+
+[SCENE 3: HUGGING FACE SPACES]
+Second is Hugging Face Spaces. It gives you thousands of open-source video, image, and voice models running live for zero dollars.
+
+[SCENE 4: CURSOR AI EDITOR]
+Third is Cursor. It's an AI-native coding environment that builds full automations directly from plain English prompts.
+
+[SCENE 5: OUTRO & C

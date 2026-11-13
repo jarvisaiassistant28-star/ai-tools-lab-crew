@@ -8,7 +8,8 @@ class Config:
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
     GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 
-    # WhatsApp Configuration (CallMeBot - 100% Free)
+    # Alert Configuration (Telegram & WhatsApp - 100% Free)
+    TELEGRAM_USER = os.getenv("TELEGRAM_USER", "@Manuhcruz")
     WHATSAPP_PHONE = os.getenv("WHATSAPP_PHONE", "")
     CALLMEBOT_API_KEY = os.getenv("CALLMEBOT_API_KEY", "")
     TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID", "")

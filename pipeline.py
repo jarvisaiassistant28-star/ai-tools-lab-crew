@@ -11,7 +11,7 @@ from agents.voice_agent import VoiceoverAgent
 from agents.video_editor import VideoEditorAgent
 from agents.boss_agent import BossReviewAgent
 from agents.publisher_agent import YouTubePublisherAgent
-from notifications.whatsapp import WhatsAppNotifier
+from notifications.alerts import AlertNotifier
 from config import Config
 
 def run_pipeline():
@@ -111,9 +111,9 @@ def run_pipeline():
     with open(f"samples/full_script_{timestamp}.md", "w") as f:
         f.write(script_report)
 
-    # 10. WhatsApp Executive Alert (With Safety Valve link)
-    print("\n[10/10] 📱 Sending executive briefing to your WhatsApp...")
-    whatsapp = WhatsAppNotifier()
+    # 10. Executive Mobile Alert (Telegram + WhatsApp)
+    print("\n[10/10] 📱 Sending executive briefing to your mobile phone...")
+    notifier = AlertNotifier()
     
     whatsapp_message = f"""🎬 *AI Tools Lab - Video Production Alert!*
 📅 Date: {now_utc.strftime('%Y-%m-%d')}
@@ -139,7 +139,7 @@ Cursor, ElevenLabs, Make.com, Freepik AI
 
 Reply to approve or change privacy to PUBLIC!"""
 
-    whatsapp.send_alert(whatsapp_message)
+    notifier.send_alert(whatsapp_message)
     print("\n✅ All 10 studio steps completed successfully!")
 
 if __name__ == "__main__":

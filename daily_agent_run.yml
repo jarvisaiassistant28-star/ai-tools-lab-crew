@@ -1,0 +1,56 @@
+name: 24/7 Offline Autonomous YouTube Studio
+
+on:
+  schedule:
+    - cron: '0 8 * * *'
+  workflow_dispatch:
+
+jobs:
+  run-crew:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install FFmpeg & Media Utilities
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install Playwright Headless Chromium (For Live UI Screen Captures)
+        run: |
+          playwright install chromium --with-deps
+
+      - name: Execute Autonomous Agent Studio
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          WHATSAPP_PHONE: ${{ secrets.WHATSAPP_PHONE }}
+          CALLMEBOT_API_KEY: ${{ secrets.CALLMEBOT_API_KEY }}
+          TELEGRAM_USER: ${{ secrets.TELEGRAM_USER || '@Manuhcruz' }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID || '8486769140' }}
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          TARGET_NICHE: ${{ vars.TARGET_NICHE || 'AI Tools, Video & Image Creation Tutorials, Automation & Productivity' }}
+        run: |
+          python pipeline.py
+
+      - name: Commit & Save Generated Scripts, Thumbnails & Video Assets
+        run: |
+          git config --global user.name "AI Tools Lab Automation Studio"
+          git config --global user.email "jarvisaiassistant28@gmail.com"
+          git add samples/
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-generated daily video package & assets [skip ci]" && git push)
